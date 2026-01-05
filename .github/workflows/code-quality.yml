@@ -1,0 +1,75 @@
+name: 🎨 Code Quality
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  formatting:
+    name: Check Code Formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install Black
+      run: pip install black
+    
+    - name: Check formatting with Black
+      run: black --check --diff .
+    
+    - name: Auto-format suggestion
+      if: failure()
+      run: |
+        echo "## 🎨 Formatting Issues Detected" >> $GITHUB_STEP_SUMMARY
+        echo "Run 'black .' locally to fix formatting" >> $GITHUB_STEP_SUMMARY
+
+  imports:
+    name: Check Import Sorting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install isort
+      run: pip install isort
+    
+    - name: Check imports with isort
+      run: isort --check-only --diff .
+    
+    - name: Auto-sort suggestion
+      if: failure()
+      run: |
+        echo "## 📦 Import Sorting Issues" >> $GITHUB_STEP_SUMMARY
+        echo "Run 'isort .' locally to fix imports" >> $GITHUB_STEP_SUMMARY
+
+  type-checking:
+    name: Type Checking
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install mypy
+        pip install -r requirements.txt
+    
+    - name: Run mypy
+      run: mypy . --ignore-missing-imports || true

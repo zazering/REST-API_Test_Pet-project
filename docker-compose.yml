@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: todolist-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/code/data
+      - ./presentation/static:/code/presentation/static
+    environment:
+      - DATABASE_URL=sqlite:///./data/todolist_database.db
+      - SECRET_KEY=your-secret-key-change-in-production
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
